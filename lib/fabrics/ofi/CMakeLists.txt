@@ -7,6 +7,20 @@ find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(libfabric REQUIRED IMPORTED_TARGET libfabric)
 
+# Force use of shared library if static is found
+if(TARGET PkgConfig::libfabric)
+    get_target_property(_libfabric_libs PkgConfig::libfabric IMPORTED_LOCATION)
+    if(_libfabric_libs MATCHES "\\.a$")
+        # Static library found, try to find shared library instead
+        get_target_property(_libfabric_libdir PkgConfig::libfabric IMPORTED_LOCATION)
+        string(REGEX REPLACE "/[^/]*$" "" _libfabric_dir "${_libfabric_libdir}")
+        set_target_properties(PkgConfig::libfabric PROPERTIES
+            IMPORTED_LOCATION "${_libfabric_dir}/libfabric.so"
+        )
+        message(STATUS "Using shared libfabric from ${_libfabric_dir}/libfabric.so")
+    endif()
+endif()
+
 if (NOT TARGET spdlog::spdlog)
     find_package(spdlog CONFIG REQUIRED)
 endif()
