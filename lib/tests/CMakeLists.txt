@@ -21,6 +21,8 @@ target_sources(mxl-tests
             test_flows.cpp
             test_flows_timing.cpp
             test_instance.cpp
+            test_integration.cpp
+            test_integration_security.cpp
             test_time.cpp
             test_read_write_conflict.cpp
     )
@@ -127,5 +129,18 @@ target_compile_options(mxl-all-headers PRIVATE
 )
 
 if (MXL_ENABLE_FABRICS_OFI)
+    target_compile_definitions(mxl-tests
+            PRIVATE
+                MXL_FABRICS_OFI
+        )
+    target_link_libraries(mxl-tests
+            PRIVATE
+                mxl-fabrics
+                mxl-fabrics-headers
+                mxl-fabrics-objects
+        )
+    target_include_directories(mxl-tests PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/../fabrics/include"
+        )
     add_subdirectory(fabrics)
 endif ()
